@@ -1,45 +1,56 @@
-import operator
+import re
+from math import sqrt
 from functools import partial
 from tkinter import *
 
-operacoes = {
-    "+": operator.add,
-    "-": operator.sub,
-    "×": operator.mul,
-    "/": operator.truediv,
-    "%": operator.mod,
-    "^": operator.pow,
-    "√": operator.add
-}
-operadores = ['×','^','+','%','√','÷','-','/']
+OPERADORES = ['×','^','+','%','÷','-','/','sqrt(']
+
 def mostrar_calculo(*args):
-    if len(label_text.get()) >= 26:
-        return None
-    if any(label_text.get().endswith(operators) for operators in operadores):
+    if any(TELA_CALCULADORA.get().endswith(operators) for operators in OPERADORES) or not TELA_CALCULADORA.get():
         try:
             int(args[0])
-            temp = label_text.get()
+            temp = TELA_CALCULADORA.get()
             temp += f'{args[0]}'
-            label_text.set(temp)
+            TELA_CALCULADORA.set(temp)
+            return
         except ValueError:
-            return None
+            return
     elif args:
-        temp = label_text.get()
-        temp += f'{args[0]}'
-        label_text.set(temp)
+        EQUACAO = TELA_CALCULADORA.get()
+        if args[0] == 'sqrt(' and EQUACAO:
+            TEMP = re.findall('[+-/×/÷/sqrt(/%/^()]|\d+', TELA_CALCULADORA.get())
+            TEMP2 = TEMP.pop()
+            EQUACAO = ''.join(TEMP)
+            EQUACAO += f'sqrt({TEMP2})'
+            TELA_CALCULADORA.set(EQUACAO)
+            return
+        EQUACAO += f'{args[0]}'
+        TELA_CALCULADORA.set(EQUACAO)
 
 
-TK = Tk()
-TK.config(width=600,height=400,bg="#111111")
+def resultado():
+    EQUACAO_TEXTO = TELA_CALCULADORA.get().replace('×', '*').replace('÷', '/').replace('^', '**')
+    eval(f'TELA_CALCULADORA.set({EQUACAO_TEXTO})')
+    if len(TELA_CALCULADORA.get()) >= 26:
+        try:
+            TAMANHO_DO_RESULTADO = len(TELA_CALCULADORA.get()) - 4
+            RESULTADO_SIMPLIFICADO = TELA_CALCULADORA.get()[0:4] + f'e{TAMANHO_DO_RESULTADO}'
+            TELA_CALCULADORA.set(RESULTADO_SIMPLIFICADO)
+        except ValueError:
+            TELA_CALCULADORA.set(EQUACAO_TEXTO)
+        return None
+    return EQUACAO_TEXTO
+
+
+JANELA_PRINCIPAL = Tk()
+JANELA_PRINCIPAL.config(width=600, height=400, bg="#111111")
 
 
 
-
-label_text = StringVar()
-LABEL = Label(textvariable=label_text, font=("Ubuntu Medium",24,"normal"), width=26, height=2,anchor='e')
+TELA_CALCULADORA = StringVar()
+LABEL = Label(textvariable=TELA_CALCULADORA, font=("Ubuntu Medium", 24, "normal"), width=26, height=2, anchor='e')
 LABEL.config(fg="black",bg="DARKGREEN",highlightthickness=0)
 LABEL.grid(row=0,column=0,columnspan=4)
-
 
 
 
@@ -94,7 +105,7 @@ DIVISAO.grid(row=4,column=3)
 MODULO = Button(text="%",width=6,height=3,bg="#22A39F",font=("Ubuntu Medium",24,"normal"),command=partial(mostrar_calculo,'%'))
 MODULO.grid(row=1,column=0)
 
-RAIZ = Button(text="√",width=6,height=3,bg="#22A39F",font=("Ubuntu Medium",24,"normal"),command=partial(mostrar_calculo,'√'))
+RAIZ = Button(text="√",width=6,height=3,bg="#22A39F",font=("Ubuntu Medium",24,"normal"),command=partial(mostrar_calculo,'sqrt('))
 RAIZ.grid(row=1,column=1)
 
 POTENCIA = Button(text="^",width=6,height=3,bg="#22A39F",font=("Ubuntu Medium",24,"normal"),command=partial(mostrar_calculo,'^'))
@@ -103,4 +114,4 @@ POTENCIA.grid(row=1,column=2)
 
 
 
-TK.mainloop()
+JANELA_PRINCIPAL.mainloop()
