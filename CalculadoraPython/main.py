@@ -2,23 +2,30 @@ import operator
 from functools import partial
 from tkinter import *
 
-
-Numeros = []
-Operadores = []
 operacoes = {
     "+": operator.add,
-    "-": operator.mul,
+    "-": operator.sub,
+    "×": operator.mul,
     "/": operator.truediv,
     "%": operator.mod,
-    "^": operator.xor,
-    "√": operator.sub
+    "^": operator.pow,
+    "√": operator.add
 }
+operadores = ['×','^','+','%','√','÷','-','/']
 def mostrar_calculo(*args):
     if len(label_text.get()) >= 26:
         return None
+    if any(label_text.get().endswith(operators) for operators in operadores):
+        try:
+            int(args[0])
+            temp = label_text.get()
+            temp += f'{args[0]}'
+            label_text.set(temp)
+        except ValueError:
+            return None
     elif args:
         temp = label_text.get()
-        temp += f'{args[0]} '
+        temp += f'{args[0]}'
         label_text.set(temp)
 
 
@@ -66,7 +73,7 @@ NUMERO_9.grid(row=2,column=2)
 NUMERO_0 = Button(text="0",width=6,height=3,bg="#434242",font=("Ubuntu Medium",24,"normal"),fg="white",highlightthickness=0,command=partial(mostrar_calculo,'0'))
 NUMERO_0.grid(row=5,column=1)
 
-MOSTRAR_RESULTADO = Button(text="=",width=6,height=3,bg="#CC0000",font=("Ubuntu Medium",24,"normal"),fg="white",highlightthickness=0)
+MOSTRAR_RESULTADO = Button(text="=",width=6,height=3,bg="#CC0000",font=("Ubuntu Medium",24,"normal"),fg="white",highlightthickness=0,command=resultado)
 MOSTRAR_RESULTADO.grid(row=5,column=3)
 
 
